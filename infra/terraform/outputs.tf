@@ -37,3 +37,13 @@ output "container_app_environment_id" {
   description = "The ID of the Container Apps Environment"
   value       = azurerm_container_app_environment.main.id
 }
+
+output "container_app_name" {
+  description = "Name of the deployed Container App"
+  value       = azurerm_container_app.sample.name
+}
+
+output "container_app_url" {
+  description = "Public URL of the Container App"
+  value       = "https://${azurerm_container_app.sample.latest_revision_fqdn}"
+}

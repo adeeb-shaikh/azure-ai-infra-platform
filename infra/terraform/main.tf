@@ -64,3 +64,67 @@ resource "azurerm_container_app_environment" "main" {
     managed_by  = "terraform"
   }
 }
+
+resource "azurerm_user_assigned_identity" "container_app" {
+  name                = "id-ai-infra-containerapp-dev"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    project     = "azure-ai-infra-platform"
+    environment = "dev"
+    managed_by  = "terraform"
+  }
+}
+
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.main.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.container_app.principal_id
+}
+
+resource "azurerm_container_app" "sample" {
+  name                         = var.container_app_name
+  container_app_environment_id = azurerm_container_app_environment.main.id
+  resource_group_name          = azurerm_resource_group.main.name
+  revision_mode                = "Single"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.container_app.id]
+  }
+
+  registry {
+    server   = azurerm_container_registry.main.login_server
+    identity = azurerm_user_assigned_identity.container_app.id
+  }
+
+  template {
+    container {
+      name   = "sample-workload"
+      image  = "${azurerm_container_registry.main.login_server}/${var.container_image_name}"
+      cpu    = 0.25
+      memory = "0.5Gi"
+    }
+  }
+
+  ingress {
+    external_enabled = true
+    target_port      = 8080
+
+    traffic_weight {
+      percentage      = 100
+      latest_revision = true
+    }
+  }
+
+  tags = {
+    project     = "azure-ai-infra-platform"
+    environment = "dev"
+    managed_by  = "terraform"
+  }
+
+  depends_on = [
+    azurerm_role_assignment.acr_pull
+  ]
+}

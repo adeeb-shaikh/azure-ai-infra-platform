@@ -27,3 +27,15 @@ variable "container_app_environment_name" {
   type        = string
   default     = "cae-ai-infra-dev-uksouth"
 }
+
+variable "container_app_name" {
+  description = "Name of the Azure Container App"
+  type        = string
+  default     = "ca-ai-infra-sample-dev"
+}
+
+variable "container_image_name" {
+  description = "Container image name and tag"
+  type        = string
+  default     = "azure-ai-infra-platform:v1"
+}
