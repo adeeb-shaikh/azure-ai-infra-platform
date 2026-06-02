@@ -33,7 +33,7 @@ jobs:
       - name: Terraform init
         run: terraform init
 
-      - name: Show Terraform backend state
+      - name: Show Terraform state resources
         run: terraform state list
 
       - name: Terraform format check
