@@ -19,13 +19,14 @@ The current architecture document describes the completed Level 1 platform found
 ```mermaid
 flowchart TD
     Dev[Developer Workstation] --> Git[GitHub Repository]
+    Dev --> LocalDocker[Local Docker Build and ACR Push]
 
     Git --> Actions[GitHub Actions]
 
     Actions --> TFValidate[Terraform Validate]
     Actions --> TFPlan[Terraform Plan]
     Actions --> TFApply[Terraform Apply]
-    Actions --> DockerBuild[Docker Build]
+    Actions --> DockerBuild[Docker Build Validation]
 
     TFValidate --> AzureLogin[Azure OIDC Login]
     TFPlan --> AzureLogin
@@ -44,10 +45,11 @@ flowchart TD
     AppRG --> CAE[Azure Container Apps Environment]
     CAE --> ContainerApp[Azure Container App]
 
-    DockerBuild --> ACR
+    LocalDocker --> ACR
     ACR --> ContainerApp
     ContainerApp --> LogAnalytics
 ```
+
 
 ## Components
 
@@ -74,7 +76,7 @@ Current workflows include:
 - Terraform Validate
 - Terraform Plan
 - Terraform Apply
-- Docker Build
+- Docker Build Validation
 - Azure Login Test
 
 Terraform Apply is manual-only to reduce the risk of unintended infrastructure changes.
@@ -98,6 +100,8 @@ Remote state is required because GitHub Actions runners are temporary and cannot
 ### Azure Container Registry
 
 Azure Container Registry stores the Docker image for the sample workload.
+
+In Level 1, the image is built and pushed to ACR from the developer workstation, while GitHub Actions validates that the Docker image can be built successfully in CI.
 
 The Container App pulls the image from ACR during deployment.
 
