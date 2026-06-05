@@ -1,0 +1,9 @@
+environment = "dev"
+
+resource_group_name              = "rg-ai-infra-dev-uksouth"
+location                         = "uksouth"
+container_registry_name          = "acraiinfraadeebdev"
+log_analytics_workspace_name     = "log-ai-infra-dev-uksouth"
+container_app_environment_name   = "cae-ai-infra-dev-uksouth"
+container_app_name               = "ca-ai-infra-sample-dev"
+container_image_name             = "azure-ai-infra-platform:v1"

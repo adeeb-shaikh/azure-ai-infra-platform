@@ -13,3 +13,6 @@ tfplan
 .DS_Store
 .vscode/
 .idea/
+
+*.tfvars
+!*.tfvars.example
