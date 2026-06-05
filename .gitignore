@@ -16,3 +16,6 @@ tfplan
 
 *.tfvars
 !*.tfvars.example
+
+# Private project notes
+docs/level1-handover.md
