@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.6.0"
+  required_version = ">= 1.6.0, < 2.0.0"
 
   backend "azurerm" {
     resource_group_name  = "rg-tfstate-ai-infra-uksouth"
@@ -8,6 +8,7 @@ terraform {
     key                  = "dev.terraform.tfstate"
     use_azuread_auth     = true
   }
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -20,15 +21,19 @@ provider "azurerm" {
   features {}
 }
 
+locals {
+  common_tags = {
+    project     = "azure-ai-infra-platform"
+    environment = var.environment
+    managed_by  = "terraform"
+  }
+}
+
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 }
 
 resource "azurerm_container_registry" "main" {
@@ -38,11 +43,7 @@ resource "azurerm_container_registry" "main" {
   sku                 = "Basic"
   admin_enabled       = false
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 }
 
 resource "azurerm_log_analytics_workspace" "main" {
@@ -52,11 +53,7 @@ resource "azurerm_log_analytics_workspace" "main" {
   sku                 = "PerGB2018"
   retention_in_days   = 30
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 }
 
 resource "azurerm_container_app_environment" "main" {
@@ -65,11 +62,7 @@ resource "azurerm_container_app_environment" "main" {
   resource_group_name        = azurerm_resource_group.main.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 }
 
 resource "azurerm_user_assigned_identity" "container_app" {
@@ -77,11 +70,7 @@ resource "azurerm_user_assigned_identity" "container_app" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 }
 
 resource "azurerm_role_assignment" "acr_pull" {
@@ -125,11 +114,7 @@ resource "azurerm_container_app" "sample" {
     }
   }
 
-  tags = {
-    project     = "azure-ai-infra-platform"
-    environment = "dev"
-    managed_by  = "terraform"
-  }
+  tags = local.common_tags
 
   depends_on = [
     azurerm_role_assignment.acr_pull
