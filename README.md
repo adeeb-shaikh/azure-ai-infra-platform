@@ -26,67 +26,52 @@ This is a portfolio project in active development. Level 1 and Level 1.1 are com
 
 ## Architecture
 
+The platform is structured in four layers: a CI/CD layer (GitHub Actions), an identity layer
+(Microsoft Entra ID), an Azure infrastructure layer (the running resources), and a separate
+control-plane layer (Terraform remote state). Each layer has a single responsibility and is
+independently auditable.
+
 ```mermaid
 graph TD
-    DEV["Developer\ngit push / pull request"]
-    INET["Public Internet\nHTTPS"]
+    DEV["👤 Developer"]
 
-    subgraph GHA["GitHub Actions — azure-ai-infra-platform"]
-        WF_VAL["terraform-validate.yml\nfmt · init · validate"]
-        WF_PLAN["terraform-plan.yml\nchange preview"]
-        WF_APPLY["terraform-apply.yml\nmanual trigger"]
-        WF_DOCKER["docker-build.yml\nbuild · tag · push"]
-        WF_LOGIN["azure-login-test.yml\nOIDC validation"]
+    subgraph GHA["GitHub Actions"]
+        CI["Validate · Plan · Apply\nBuild · Push · Test"]
     end
 
-    subgraph ENTRA["Microsoft Entra ID — Identity Plane"]
-        OIDC_FED["Federated Credential\nGitHub Actions → Entra ID\nno client secret"]
-        RBAC_TF["RBAC Assignment\nContributor + Storage\nTerraform operations"]
-        RBAC_ACR_PUSH["RBAC Assignment\nAcrPush · GitHub OIDC principal\nscoped to ACR"]
-        MI["User-Assigned Managed Identity\nid-ai-infra-containerapp-dev"]
-        RBAC_ACR_PULL["RBAC Assignment\nAcrPull · managed identity\nscoped to ACR"]
+    subgraph AZURE["Microsoft Azure"]
+        ENTRA["Entra ID\nOIDC · RBAC · Managed Identity"]
+
+        subgraph RG["rg-ai-infra-dev-uksouth"]
+            ACR["Container Registry\nacraiinfraadeebdev"]
+            CA["Container App\nca-ai-infra-sample-dev"]
+            LAW["Log Analytics\nlog-ai-infra-dev-uksouth"]
+        end
+
+        STATE["Terraform State\nrg-tfstate-ai-infra-uksouth"]
     end
 
-    subgraph RG_APP["Azure Resource Group — rg-ai-infra-dev-uksouth"]
-        ACR["Azure Container Registry\nacraiinfraadeebdev\nBasic SKU · admin disabled"]
-        CAE["Container Apps Environment\ncae-ai-infra-dev-uksouth"]
-        CA["Azure Container App\nca-ai-infra-sample-dev\n0.25 vCPU · 0.5 GiB · port 8080"]
-        LAW["Log Analytics Workspace\nlog-ai-infra-dev-uksouth\nPerGB2018 · 30-day retention"]
-        NOTE_ROLLOUT["⚠ revision rollout not automated\nnew image does not trigger redeploy"]
-    end
+    INET["🌐 Public Internet"]
 
-    subgraph RG_STATE["Azure Resource Group — rg-tfstate-ai-infra-uksouth"]
-        SA["Storage Account\nsttfstateaiinfraadeeb\nAAD auth · use_azuread_auth = true"]
-        BLOB["Blob Container: tfstate\ndev.terraform.tfstate"]
-    end
-
-    NOTE_NET["⚠ No VNet · no private endpoints\npublic ingress · deferred to future level"]
-
-    DEV -->|"git push / PR"| GHA
-    GHA -->|"OIDC token request"| OIDC_FED
-    OIDC_FED -->|"short-lived Azure token"| RBAC_TF
-    OIDC_FED -->|"short-lived Azure token"| RBAC_ACR_PUSH
-    RBAC_TF -->|"authorised"| WF_VAL
-    RBAC_TF -->|"authorised"| WF_PLAN
-    RBAC_TF -->|"authorised"| WF_APPLY
-    WF_VAL -->|"TF state read · AAD auth"| SA
-    WF_PLAN -->|"TF state read · AAD auth"| SA
-    WF_APPLY -->|"TF state read/write · AAD auth"| SA
-    SA --> BLOB
-    WF_APPLY -->|"TF apply · provisions resources"| RG_APP
-    RBAC_ACR_PUSH -->|"authorised"| WF_DOCKER
-    WF_DOCKER -->|"AcrPush · tags: latest + git SHA"| ACR
-    MI --> RBAC_ACR_PULL
-    RBAC_ACR_PULL -->|"AcrPull · no credentials"| ACR
-    CA -->|"image pull via managed identity"| ACR
-    CAE --> CA
-    CAE -->|"platform + container logs"| LAW
-    INET -->|"HTTPS · port 8080"| CA
-    CA -.->|"known limitation"| NOTE_ROLLOUT
-    RG_APP -.->|"known limitation"| NOTE_NET
+    DEV -->|"git push"| GHA
+    GHA -->|"OIDC — no secrets"| ENTRA
+    ENTRA -->|"authorises"| GHA
+    GHA -->|"terraform apply"| RG
+    GHA -->|"push image"| ACR
+    GHA -->|"read / write state"| STATE
+    ACR -->|"pull image · managed identity"| CA
+    CA -->|"logs"| LAW
+    INET -->|"HTTPS"| CA
 ```
 
-The diagram is organised into four horizontal layers: the CI/CD layer (GitHub Actions workflows), the identity plane (Microsoft Entra ID, OIDC federation, and RBAC assignments), the application resource group (the running infrastructure), and the Terraform state backend (a separate resource group for control-plane concerns). This separation reflects how real teams think about infrastructure — keeping identity, automation, compute, and state management as distinct concerns reduces blast radius when something goes wrong and makes each layer independently auditable.
+A developer pushes to GitHub, which triggers the CI/CD pipelines. All workflows authenticate
+to Azure using OIDC — no client secrets or stored credentials exist anywhere in the platform.
+Terraform provisions the infrastructure; Docker builds and pushes the container image to the
+registry. The Container App pulls that image using a managed identity rather than registry
+credentials, and forwards its logs to Log Analytics.
+
+For the full architecture including resource names, identity model, data flows, design
+decisions, and known limitations, see [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
