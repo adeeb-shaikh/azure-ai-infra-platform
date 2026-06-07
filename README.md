@@ -6,11 +6,11 @@ A cloud-native infrastructure platform on Microsoft Azure, provisioned with Terr
 
 ![Terraform Version](https://img.shields.io/badge/terraform-%3E%3D1.6.0%2C%20%3C2.0.0-623CE4?logo=terraform)
 ![Azure Provider](https://img.shields.io/badge/azurerm-~%3E3.100-0078D4?logo=microsoftazure)
-![Terraform Validate](https://github.com/adeeb-cybersecurity/azure-ai-infra-platform/actions/workflows/terraform-validate.yml/badge.svg)
-![Terraform Plan](https://github.com/adeeb-cybersecurity/azure-ai-infra-platform/actions/workflows/terraform-plan.yml/badge.svg)
-![Terraform Apply](https://github.com/adeeb-cybersecurity/azure-ai-infra-platform/actions/workflows/terraform-apply.yml/badge.svg)
-![Docker Build](https://github.com/adeeb-cybersecurity/azure-ai-infra-platform/actions/workflows/docker-build.yml/badge.svg)
-![Azure Login Test](https://github.com/adeeb-cybersecurity/azure-ai-infra-platform/actions/workflows/azure-login-test.yml/badge.svg)
+![Terraform Validate](https://github.com/adeeb-shaikh/azure-ai-infra-platform/actions/workflows/terraform-validate.yml/badge.svg)
+![Terraform Plan](https://github.com/adeeb-shaikh/azure-ai-infra-platform/actions/workflows/terraform-plan.yml/badge.svg)
+![Terraform Apply](https://github.com/adeeb-shaikh/azure-ai-infra-platform/actions/workflows/terraform-apply.yml/badge.svg)
+![Docker Build](https://github.com/adeeb-shaikh/azure-ai-infra-platform/actions/workflows/docker-build.yml/badge.svg)
+![Azure Login Test](https://github.com/adeeb-shaikh/azure-ai-infra-platform/actions/workflows/azure-login-test.yml/badge.svg)
 
 ---
 
@@ -339,7 +339,7 @@ The following are accepted limitations for Level 1. They are documented tradeoff
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/adeeb-cybersecurity/azure-ai-infra-platform.git
+git clone https://github.com/adeeb-shaikh/azure-ai-infra-platform.git
 cd azure-ai-infra-platform
 ```
 
