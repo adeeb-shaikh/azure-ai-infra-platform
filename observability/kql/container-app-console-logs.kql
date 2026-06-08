@@ -1,0 +1,4 @@
+ContainerAppConsoleLogs_CL
+| where ContainerAppName_s == "ca-ai-infra-sample-dev"
+| project TimeGenerated, ContainerAppName_s, ContainerName_s, Log_s
+| order by TimeGenerated desc
