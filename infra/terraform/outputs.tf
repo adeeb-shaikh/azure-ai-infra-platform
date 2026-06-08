@@ -47,3 +47,8 @@ output "container_app_url" {
   description = "Public URL of the Container App"
   value       = "https://${azurerm_container_app.sample.latest_revision_fqdn}"
 }
+
+output "container_app_id" {
+  description = "The resource ID of the deployed Container App"
+  value       = azurerm_container_app.sample.id
+}
