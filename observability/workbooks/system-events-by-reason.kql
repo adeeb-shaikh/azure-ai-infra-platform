@@ -1,0 +1,3 @@
+ContainerAppSystemLogs_CL
+| summarize Count=count() by Reason_s
+| order by Count desc

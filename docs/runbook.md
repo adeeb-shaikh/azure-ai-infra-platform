@@ -306,3 +306,26 @@ az acr repository list \
   --name acraiinfraadeebdev \
   --output table
 ```
+---
+
+# Level 2 Observability and Monitoring
+
+## Scope Update
+
+This runbook now includes Level 2 observability procedures for Azure Monitor alerts, Log Analytics investigation, and Container App incident response.
+
+---
+
+# Alert Response: Container App Revision Failure
+
+## Purpose
+
+This procedure is used when the Azure Monitor alert `alert-container-app-revision-failure-dev` fires.
+
+The alert indicates that Azure Container Apps system logs contain a failed revision, platform error, image pull failure, crash loop, or related runtime failure signal.
+
+## Owner
+
+```text
+Platform Maintainer
+(single-operator portfolio environment)

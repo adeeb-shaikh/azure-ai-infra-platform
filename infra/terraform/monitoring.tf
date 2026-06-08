@@ -22,7 +22,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "container_app_revisio
     query = <<-KQL
       ContainerAppSystemLogs_CL
       | where ContainerAppName_s == "${azurerm_container_app.sample.name}"
-      | where Reason_s has_any ("Failed", "Error", "BackOff", "CrashLoopBackOff", "ImagePullBackOff")
+      | where Reason_s in ("FailedMount", "ReplicaUnhealthy")
       | summarize FailureCount = count()
     KQL
 

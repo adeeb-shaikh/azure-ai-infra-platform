@@ -1,0 +1,4 @@
+ContainerAppConsoleLogs_CL
+| project TimeGenerated, ContainerAppName_s, ContainerName_s, Log_s
+| order by TimeGenerated desc
+

@@ -103,9 +103,12 @@ observability/kql/container-app-system-logs.kql
 
 #### Initial Threshold
 
-```text
-Any failed revision event
-```
+Observed failure indicators:
+
+- FailedMount
+- ReplicaUnhealthy
+
+Alert criteria are based on validated Container Apps system log events observed in Log Analytics.
 
 #### Investigation
 
@@ -218,3 +221,9 @@ Initial thresholds are starting points and should be refined after baseline oper
 An alert without an owner is not operationally useful.
 
 Every alert must have a responsible operator or team capable of investigating and resolving the issue.
+
+Revision Failure Alert Status:
+Experimental
+
+Alert criteria based on assumed failure indicators.
+Requires validation against observed Container App system log events.
